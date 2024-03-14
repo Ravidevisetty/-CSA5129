@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define ROWS 5
+#define COLS 5
+void preprocessMessage(char *message) {
+    int len = strlen(message);
+    int j_index;
+    for (int i = 0; i < len; i++) {
+        if (message[i] == ' ') {
+            for (int j = i; j < len; j++) {
+                message[j] = message[j + 1];
+            }
+            len--;
+        }
+    }
+    for (int i = 0; i < len; i++) {
+        if (message[i] == 'J')
+            message[i] = 'I';
+    }
+}
+void findPosition(char keyMatrix[ROWS][COLS], char ch, int *row, int *col) {
+    if (ch == 'J')
+        ch = 'I';
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (keyMatrix[i][j] == ch) {
+                *row = i;
+                *col = j;
+                return;
+            }
+        }
+    }
+}
+void encryptPlayfair(char *plaintext, char keyMatrix[ROWS][COLS]) {
+    preprocessMessage(plaintext);
+    int len = strlen(plaintext);
+    for (int i = 0; i < len; i += 2) {
+        char a = plaintext[i];
+        char b = (i + 1 < len) ? plaintext[i + 1] : 'X'; 
+        int aRow, aCol, bRow, bCol;
+        findPosition(keyMatrix, a, &aRow, &aCol);
+        findPosition(keyMatrix, b, &bRow, &bCol);
+        if (aRow == bRow) {
+            printf("%c%c", keyMatrix[aRow][(aCol + 1) % COLS], keyMatrix[bRow][(bCol + 1) % COLS]);
+        } else if (aCol == bCol) {
+            printf("%c%c", keyMatrix[(aRow + 1) % ROWS][aCol], keyMatrix[(bRow + 1) % ROWS][bCol]);
+        } else {
+            printf("%c%c", keyMatrix[aRow][bCol], keyMatrix[bRow][aCol]);
+        }
+    }
+}
+
+int main() {
+    char keyMatrix[ROWS][COLS] = {
+        {'M', 'F', 'H', 'I', 'K'},
+        {'U', 'N', 'O', 'P', 'Q'},
+        {'Z', 'V', 'W', 'X', 'Y'},
+        {'E', 'L', 'A', 'R', 'G'},
+        {'D', 'S', 'T', 'B', 'C'}
+    };
+    char plaintext[] = "Must see you over Cadogan West. Coming at once.";
+    printf("Encrypted message:\n");
+    encryptPlayfair(plaintext, keyMatrix);
+    printf("\n");
+    return 0;
+}
